@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>i love you...</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: sans-serif;
+      background: #000;
+      color: #fff;
+    }
+
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 5px;
+      background: linear-gradient(to right, #777, #aaa);
+      z-index: 9999;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      animation: fadeIn 1s ease;
+    }
+
+    .modal img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+    }
+
+    .btn-close {
+      margin-top: 15px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .btn-close:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .intro {
+      text-align: center;
+      padding: 30px 20px;
+      animation: slideIn 1s ease;
+    }
+
+    .intro img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+
+    .typing {
+      font-size: 1.2em;
+      color: #ccc;
+      height: 24px;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      padding: 40px 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .card, .album, .comment-box {
+      flex: 1;
+      min-width: 280px;
+      max-width: 400px;
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(8px);
+      animation: fadeIn 1s ease;
+    }
+
+    .album {
+      overflow-x: auto;
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      scroll-snap-type: x mandatory;
+    }
+
+    .album img {
+      height: 200px;
+      border-radius: 15px;
+      object-fit: cover;
+      scroll-snap-align: start;
+    }
+
+    .photo-item {
+      position: relative;
+    }
+
+    .like-btn {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .comment-box {
+      margin: 40px 20px;
+    }
+
+    .comment-box input, .comment-box textarea {
+      width: 100%;
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    .comment-box button {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .comments {
+      margin-top: 20px;
+    }
+
+    .comment {
+      background: rgba(255,255,255,0.05);
+      border-left: 3px solid #888;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+  
+    <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
+  
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <img src="https://files.catbox.moe/08w4cy.jpeg" alt="Profile" />
+    <p>i love you, always..</p>
+    <button class="btn-close" onclick="closeModal()">Masuk</button>
+  </div>
+</div>
+
+<!-- Intro -->
+<section class="intro">
+  <img src="https://files.catbox.moe/08w4cy.jpeg" />
+  <div class="typing" id="typingText"></div>
+</section>
+
+<!-- Konten -->
+<div class="container">
+  <div class="card">
+    <h3>Tentang Saya</h3>
+    <p>halo! nama saya ilham alfahrizy, saya sekolah di smkn 1 perjuangan kota cerbon.</p>
+  </div>
+  <div class="card">
+    <h3>Hobi Saya</h3>
+    <p>main, ngoding, ngising, design website, dan banyak lagi lah malas yapping rek.</p>
+  </div>
+  <div class="card">
+    <h3>Kata Kata Galau</h3>
+    <p>Kalau masalalu mu masih jadi pemenang nya, tolong jangan bawa aku terlalu jauh ya.....</p>
+  </div>
+</div>
+
+<!-- Album -->
+<div class="container">
+  <div class="album">
+    <div class="photo-item">
+      <img src="https://files.catbox.moe/bu7qln.jpg" />
+      <button class="like-btn" onclick="like(this)">♡︎ <span>0</span></button>
+    </div>
+    <div class="photo-item">
+      <img src="https://files.catbox.moe/xem4k5.jpg" />
+      <button class="like-btn" onclick="like(this)">♡︎ <span>0</span></button>
+    </div>
+    <div class="photo-item">
+      <img src="https://files.catbox.moe/9dpwhj.jpg" />
+      <button class="like-btn" onclick="like(this)">♡︎ <span>0</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Komentar -->
+<div class="comment-box">
+  <h3>Komentar</h3>
+  <input type="text" id="name" placeholder="Nama kamu">
+  <textarea id="comment" rows="3" placeholder="Tulis komentarmu..."></textarea>
+  <button onclick="submitComment()">Kirim</button>
+  <div class="comments" id="commentsList"></div>
+</div>
+
+<script>
+  // Firebase Config kamu
+  const firebaseConfig = {
+    apiKey: "AIzaSyCLa42nGmFek9t4Gya72P_hCagQXw7-NcQ",
+    authDomain: "apa-aja-ya.firebaseapp.com",
+    databaseURL: "https://apa-aja-ya-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "apa-aja-ya",
+    storageBucket: "apa-aja-ya.firebasestorage.app",
+    messagingSenderId: "1098664255395",
+    appId: "1:1098664255395:web:c9e695989c4d3322280416",
+    measurementId: "G-B1MD210ZD8"
+  };
+
+  // Inisialisasi Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  
+  // Modal
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+  }
+
+  // Typing effect
+  const text = "HI! WELCOME USER!";
+  let i = 0;
+  function typing() {
+    if (i < text.length) {
+      document.getElementById("typingText").innerHTML += text.charAt(i);
+      i++;
+      setTimeout(typing, 70);
+    }
+  }
+  window.onload = typing;
+
+  // Like
+  function like(btn) {
+    let countSpan = btn.querySelector("span");
+    let count = parseInt(countSpan.textContent);
+    countSpan.textContent = count + 1;
+  }
+
+  // Scroll progress
+  window.onscroll = () => {
+    const winScroll = document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    document.getElementById("progressBar").style.width = scrolled + "%";
+  };
+
+  // Komentar
+  function submitComment() {
+    const name = document.getElementById("name").value.trim();
+    const comment = document.getElementById("comment").value.trim();
+    if (!name || !comment) return;
+
+    const data = { name, comment, time: new Date().toLocaleString() };
+    const list = JSON.parse(localStorage.getItem("comments") || "[]");
+    list.push(data);
+    localStorage.setItem("comments", JSON.stringify(list));
+    showComments();
+    document.getElementById("name").value = '';
+    document.getElementById("comment").value = '';
+  }
+
+  function showComments() {
+    const list = JSON.parse(localStorage.getItem("comments") || "[]");
+    const container = document.getElementById("commentsList");
+    container.innerHTML = list.map(c => `
+      <div class="comment">
+        <strong>${c.name}</strong><br>
+        <small>${c.time}</small><br>
+        <p>${c.comment}</p>
+      </div>
+    `).join('');
+  }
+  showComments();
+</script>
+</body>
+</html>
